@@ -7,7 +7,7 @@ namespace ir_coding_task_csv_validator.Services
     {
         public ValidationResult Validate(User record)
         {
-            var result = new ValidationResult { Record = record };
+            var result = new ValidationResult { UserRecord = record };
 
             if (record.FirstName?.Length < 4 || record.LastName?.Length < 4)
                 result.Messages.Add(new ValidationMessage { Level = Level.Warning, Message = "Name is less than four characters." });

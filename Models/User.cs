@@ -1,5 +1,9 @@
 ﻿namespace ir_coding_task_csv_validator.Models
 {
+    /// <summary>
+    /// Represents a user record with various personal and job-related details.
+    /// Model class for user data.
+    /// </summary>
     public class User
     {  
         public string FirstName { get; set; } = string.Empty;

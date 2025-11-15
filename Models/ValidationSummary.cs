@@ -2,7 +2,7 @@
 {
     public class ValidationSummary
     {
-        public List<ValidationResult> Records { get; }
+        public List<ValidationResult> UserValidationRecords { get; }
 
         // Total number of records processed
         public int TotalCount { get; }
@@ -12,7 +12,7 @@
 
         public ValidationSummary(List<ValidationResult> records, int recordsWithMessages)
         {
-            Records = records;
+            UserValidationRecords = records;
             TotalCount = records.Count;
             RecordsWithMessages = recordsWithMessages;
         }
