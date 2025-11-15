@@ -1,0 +1,6 @@
+@ir_coding_task_csv_validator_HostAddress = http://localhost:5246
+
+GET {{ir_coding_task_csv_validator_HostAddress}}/Validator/Validate
+Accept: application/json
+
+###
