@@ -22,17 +22,25 @@ namespace ir_coding_task_csv_validator.Services
 
             foreach (var user in usersTask)
             {
-                // Process each user
-                user.JobTitle = jobTitleMapper.MapJobTitle(user.Job_Code);
-                var validation = userValidator.Validate(user);
-                if (validation.Messages.Any())
+                try
                 {
-                    recordsWithMessages++;
+                    // Process each user
+                    user.JobTitle = jobTitleMapper.MapJobTitle(user.Job_Code);
+                    //throw new Exception("Test exception"); // For testing exception handling
+                    var validation = userValidator.Validate(user);
+                    if (validation.Messages.Any())
+                    {
+                        recordsWithMessages++;
+                    }
+                    results.Add(validation);
                 }
-                results.Add(validation);
+                catch (Exception ex)
+                {
+                    // Log the exception and continue processing other records
+                }
             }
 
-            ValidationSummary summary = new ValidationSummary(results, recordsWithMessages);
+            ValidationSummary summary = new ValidationSummary(results, recordsWithMessages, usersTask.Count);
 
             return summary;
         }

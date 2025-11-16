@@ -33,7 +33,7 @@ namespace ir_coding_task_csv_validator.Helpers
                     }
                     catch (Exception ex)
                     {
-                        //Todo: log something
+                        //Todo: log something and continue with the rest
                     }
                 }
 
