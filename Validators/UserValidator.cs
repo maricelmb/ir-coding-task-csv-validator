@@ -18,7 +18,7 @@ namespace ir_coding_task_csv_validator.Services
                 result.Messages.Add(new ValidationMessage { Level = Level.Error, Message = "Invalid job code." });
            
 
-            if (record.Salary <= 0)
+            if (record.Salary < 0)
                 result.Messages.Add(new ValidationMessage { Level = Level.Warning, Message = "Salary not a positive integer." });
 
             if (string.IsNullOrWhiteSpace(record.Postcode))
