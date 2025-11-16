@@ -1,31 +1,67 @@
 ﻿using System.Globalization;
+using System.Reflection.PortableExecutable;
 
 namespace ir_coding_task_csv_validator.Helpers
 {
     public class CsvMapper : ICsvMapper
     {
         private const char Delimiter = ',';
-     
-        public async Task<List<T>> ParseAsync<T>(IFormFile file) where T : new()
+
+        public async Task<List<string>> ReadAsList(IFormFile file)
         {
-            //Todo: validate parameters for public functions
-
-            using var reader = new StreamReader(file.OpenReadStream());
-            //Todo: validation for header
-            var header = (await reader.ReadLineAsync())?.Split(Delimiter) ?? [];
-            var result = new List<T>();
-
-            while (!reader.EndOfStream)
+            try
             {
-                var values = (await reader.ReadLineAsync())?.Split(Delimiter);
-                if (values == null) continue;
+                List<string> result = new();
+                using StreamReader reader = new StreamReader(file.OpenReadStream());
+                while (reader.Peek() > 0)
+                {
+                    var line = await reader.ReadLineAsync();
+                    if (line != null)
+                    {
+                        result.Add(line);
+                    }
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return new List<string>();
+            }
+        }
+
+        public List<T> ParseAsync<T>(List<string> csvRows, bool validateHeaders, List<string> expectedHeaders) where T : new()
+        {
+            var props = typeof(T).GetProperties();
+            var result = new List<T>();
+            var header = new string[] { };
+
+            //process each row
+            for (int x = 0; x < csvRows.Count; x++)
+            {
+                //handle header row
+                if (x == 0)
+                {
+                    header = csvRows[x].Split(Delimiter, StringSplitOptions.TrimEntries);
+
+                    if (validateHeaders && !expectedHeaders.SequenceEqual(header))
+                    {
+                        throw new InvalidDataException("CSV headers do not match expected format.");
+                    }
+                    
+                    continue;
+                }
 
                 var obj = new T();
-                var props = typeof(T).GetProperties();
 
+                var values = csvRows[x].Split(Delimiter, StringSplitOptions.TrimEntries);
+                if(values == null) continue;
+
+                //process each column of each row
                 for (int i = 0; i < header.Length && i < values.Length; i++)
                 {
-                    //trim all the spaces from the header to match property names
+                    //remove the space in between words from the header to match property names
+                    //to do: consider other options like using a mapping dictionary or custom attributes of the model properties
                     string trimmedHeader = RemoveSpace(header[i]);
                     var prop = props.FirstOrDefault(p => p.Name.Equals(trimmedHeader, StringComparison.OrdinalIgnoreCase));
 
@@ -38,7 +74,7 @@ namespace ir_coding_task_csv_validator.Helpers
                         //Todo: log something, don't throw and continue with the rest
                     }
                 }
-
+                
                 result.Add(obj);
             }
 

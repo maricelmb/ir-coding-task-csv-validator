@@ -7,12 +7,17 @@ namespace ir_coding_task_csv_validator.Services
 {
     public class ValidatorService(IUserValidator userValidator, 
                                   ICsvMapper csvMapper,
-                                  IJobTitleMapper jobTitleMapper) : IValidatorService
+                                  IJobTitleMapper jobTitleMapper,
+                                  IConfiguration config) : IValidatorService
     {  
-        public async Task<ValidationSummary> ValidateRecords(IFormFile csvFile, IFormFile jobTitleFile)
+        private const string CsvExpectedHeaderConfigKey = "CsvExpectedHeader";
+        public ValidationSummary ValidateRecords(List<string> userCsvRows, List<string> jobTitleRows)
         {
-            var usersTask = await csvMapper.ParseAsync<User>(csvFile);
-            var jobTitlesTask = await csvMapper.ParseAsync<Job>(jobTitleFile);
+            var userCsvExpectedHeaders = config.GetSection(CsvExpectedHeaderConfigKey).Get<List<string>>() ?? new List<string>();
+            var usersTask = csvMapper.ParseAsync<User>(userCsvRows, true, userCsvExpectedHeaders);
+
+            //to do: set the expected headers for job titles
+            var jobTitlesTask = csvMapper.ParseAsync<Job>(jobTitleRows, false, new List<string>());
           
             jobTitleMapper.Initialize(jobTitlesTask);
 

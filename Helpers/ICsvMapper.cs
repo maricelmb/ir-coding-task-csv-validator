@@ -2,16 +2,21 @@
 {
     public interface ICsvMapper
     {
-        //Todo: add cancellation token
-        //Todo: add custom mapping options
+        /// <summary>
+        /// Read the CSV file and return the rows as a list of strings.
+        /// </summary>
+        /// <param name="file">csv file to read</param>
+        /// <returns>csv rows</returns>
+        Task<List<string>> ReadAsList(IFormFile file);
 
         /// <summary>
-        /// Parses the CSV file into a list of objects of type T
-        /// CSV header fields must match the property names of T (case insensitive, white space are ignored as well)
+        /// Map the CSV rows to a list of objects of type T.
         /// </summary>
-        /// <typeparam name="T">Target object to map the csv fields</typeparam>
-        /// <param name="file"></param>
-        /// <returns>List of mapped objects</returns>
-        Task<List<T>> ParseAsync<T>(IFormFile file) where T : new();
+        /// <typeparam name="T"></typeparam>
+        /// <param name="csvRows">csv rows</param>
+        /// <param name="validateHeaders">true if need to validate headers</param>
+        /// <param name="expectedHeaders">expected headers in csv</param>
+        /// <returns></returns>
+        List<T> ParseAsync<T>(List<string> csvRows, bool validateHeaders, List<string> expectedHeaders) where T : new();
     }
 }
