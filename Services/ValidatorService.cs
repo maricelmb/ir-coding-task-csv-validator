@@ -9,42 +9,48 @@ namespace ir_coding_task_csv_validator.Services
                                   ICsvMapper csvMapper,
                                   IJobTitleMapper jobTitleMapper) : IValidatorService
     {  
-        public async Task<ValidationSummary> ValidateRecords(IFormFile csvFile, IFormFile jobTitleFile)
+        public async Task<ValidationResult> ValidateRecords(User user, CancellationToken cancellationToken )
         {
-            var usersTask = await csvMapper.ParseAsync<User>(csvFile);
-            var jobTitlesTask = await csvMapper.ParseAsync<Job>(jobTitleFile);
-          
-            jobTitleMapper.Initialize(jobTitlesTask);
+            //var usersTask = await csvMapper.ParseAsync<User>(csvFile);
+            //var jobTitlesTask = await csvMapper.ParseAsync<Job>(jobTitleFile);
 
-            var results = new List<ValidationResult>();
-            int recordsWithMessages = 0;
-            
+            //jobTitleMapper.Initialize(jobTitlesTask);
 
-            foreach (var user in usersTask)
-            {
-                try
-                {
-                    // Process each user
-                    user.JobTitle = jobTitleMapper.MapJobTitle(user.Job_Code);
-                    //throw new Exception("Test exception"); // For testing exception handling
-                    var validation = userValidator.Validate(user);
-                    if (validation.Messages.Any())
-                    {
-                        recordsWithMessages++;
-                    }
-                    results.Add(validation);
-                }
-                catch (Exception ex)
-                {
-                    // Log the exception and continue processing other records
-                }
-            }
+            //var results = new List<ValidationResult>();
+            //int recordsWithMessages = 0;
 
-            ValidationSummary summary = new ValidationSummary(results, recordsWithMessages, usersTask.Count);
 
-            return summary;
+            //foreach (var user in usersTask)
+            //{
+            //    try
+            //    {
+            //        // Process each user
+            //        user.JobTitle = jobTitleMapper.MapJobTitle(user.Job_Code);
+            //        //throw new Exception("Test exception"); // For testing exception handling
+            //        var validation = userValidator.Validate(user);
+            //        if (validation.Messages.Any())
+            //        {
+            //            recordsWithMessages++;
+            //        }
+            //        results.Add(validation);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        // Log the exception and continue processing other records
+            //    }
+            //}
+
+            //ValidationSummary summary = new ValidationSummary(results, recordsWithMessages, usersTask.Count);
+
+            //return summary;
+
+            //Process each user
+            user.JobTitle = jobTitleMapper.MapJobTitle(user.Job_Code);     
+            var result = userValidator.Validate(user);
+
+            return result;
         }
 
-       
+
     }
 }

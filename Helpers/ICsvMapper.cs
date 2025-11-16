@@ -1,4 +1,6 @@
-﻿namespace ir_coding_task_csv_validator.Helpers
+﻿using System.Runtime.CompilerServices;
+
+namespace ir_coding_task_csv_validator.Helpers
 {
     public interface ICsvMapper
     {
@@ -12,6 +14,9 @@
         /// <typeparam name="T">Target object to map the csv fields</typeparam>
         /// <param name="file"></param>
         /// <returns>List of mapped objects</returns>
-        Task<List<T>> ParseAsync<T>(IFormFile file) where T : new();
+        IAsyncEnumerable<T> ParseAsync<T>(Stream stream,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default) where T : new();
+
+        Task<List<T>> ParseAsync<T>(Stream stream) where T : new();
     }
 }

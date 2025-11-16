@@ -18,5 +18,10 @@
             RecordsWithMessages = recordsWithMessages;
             NoOfRecordsInCsv = noOfRecordsInCsv;
         }
+
+        public ValidationSummary()
+        {
+            
+        }
     }
 }

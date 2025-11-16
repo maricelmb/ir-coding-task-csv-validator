@@ -1,21 +1,25 @@
 ﻿using System.Globalization;
+using System.Runtime.CompilerServices;
 
 namespace ir_coding_task_csv_validator.Helpers
 {
     public class CsvMapper : ICsvMapper
     {
-        public async Task<List<T>> ParseAsync<T>(IFormFile file) where T : new()
+        public async IAsyncEnumerable<T> ParseAsync<T>(Stream stream,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default) where T : new()
         {
             //Todo: validate parameters for public functions
 
-            using var reader = new StreamReader(file.OpenReadStream());
+            using var reader = new StreamReader(stream);
             //Todo: validation for header
             var header = (await reader.ReadLineAsync())?.Split(',') ?? [];
             var result = new List<T>();
 
             while (!reader.EndOfStream)
             {
-                var values = (await reader.ReadLineAsync())?.Split(',');
+                cancellationToken.ThrowIfCancellationRequested();
+                var line = await reader.ReadLineAsync().ConfigureAwait(false);
+                var values = line?.Split(',');
                 if (values == null) continue;
 
                 var obj = new T();
@@ -23,6 +27,7 @@ namespace ir_coding_task_csv_validator.Helpers
 
                 for (int i = 0; i < header.Length && i < values.Length; i++)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     //trim all the spaces from the header to match property names
                     string trimmedHeader = RemoveSpace(header[i]);
                     var prop = props.FirstOrDefault(p => p.Name.Equals(trimmedHeader, StringComparison.OrdinalIgnoreCase));
@@ -37,10 +42,11 @@ namespace ir_coding_task_csv_validator.Helpers
                     }
                 }
 
-                result.Add(obj);
+                //result.Add(obj);
+                yield return obj;
             }
 
-            return result;
+
         }
 
         private object? ConvertValue(string raw, Type type, string name)
@@ -81,6 +87,45 @@ namespace ir_coding_task_csv_validator.Helpers
         private string RemoveSpace(string rawValue)
         {
             return rawValue.Replace(" ", "");
+        }
+
+        public async Task<List<T>> ParseAsync<T>(Stream stream) where T : new()
+        {
+            //Todo: validate parameters for public functions
+
+            using var reader = new StreamReader(stream);
+            //Todo: validation for header
+            var header = (await reader.ReadLineAsync())?.Split(',') ?? [];
+            var result = new List<T>();
+
+            while (!reader.EndOfStream)
+            {
+                var values = (await reader.ReadLineAsync())?.Split(',');
+                if (values == null) continue;
+
+                var obj = new T();
+                var props = typeof(T).GetProperties();
+
+                for (int i = 0; i < header.Length && i < values.Length; i++)
+                {
+                    //trim all the spaces from the header to match property names
+                    string trimmedHeader = RemoveSpace(header[i]);
+                    var prop = props.FirstOrDefault(p => p.Name.Equals(trimmedHeader, StringComparison.OrdinalIgnoreCase));
+
+                    try
+                    {
+                        prop?.SetValue(obj, ConvertValue(values[i], prop.PropertyType, prop.Name));
+                    }
+                    catch (Exception ex)
+                    {
+                        //Todo: log something and continue with the rest
+                    }
+                }
+
+                result.Add(obj);
+            }
+
+            return result;
         }
     }
 }
