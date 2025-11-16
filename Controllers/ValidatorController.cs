@@ -42,7 +42,7 @@ public class ValidatorController : ControllerBase
             //var result = await _validatorService.ValidateRecords(csvFile, jobTitleFile);
 
             var results = new List<ValidationResult>();
-            const int BATCH_SIZE = 300;  // Tune for performance
+            const int BATCH_SIZE = 800;  // Tune for performance
             var batch = new List<Task<ValidationResult>>(BATCH_SIZE);
 
             await using var jobStream = jobTitleFile.OpenReadStream();
