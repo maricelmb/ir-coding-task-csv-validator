@@ -4,18 +4,20 @@ namespace ir_coding_task_csv_validator.Helpers
 {
     public class CsvMapper : ICsvMapper
     {
+        private const char Delimiter = ',';
+     
         public async Task<List<T>> ParseAsync<T>(IFormFile file) where T : new()
         {
             //Todo: validate parameters for public functions
 
             using var reader = new StreamReader(file.OpenReadStream());
             //Todo: validation for header
-            var header = (await reader.ReadLineAsync())?.Split(',') ?? [];
+            var header = (await reader.ReadLineAsync())?.Split(Delimiter) ?? [];
             var result = new List<T>();
 
             while (!reader.EndOfStream)
             {
-                var values = (await reader.ReadLineAsync())?.Split(',');
+                var values = (await reader.ReadLineAsync())?.Split(Delimiter);
                 if (values == null) continue;
 
                 var obj = new T();
@@ -33,7 +35,7 @@ namespace ir_coding_task_csv_validator.Helpers
                     }
                     catch (Exception ex)
                     {
-                        //Todo: log something and continue with the rest
+                        //Todo: log something, don't throw and continue with the rest
                     }
                 }
 
@@ -82,5 +84,5 @@ namespace ir_coding_task_csv_validator.Helpers
         {
             return rawValue.Replace(" ", "");
         }
-    }
+}
 }
