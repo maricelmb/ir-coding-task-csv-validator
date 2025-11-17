@@ -58,6 +58,7 @@ namespace ir_coding_task_csv_validator.Helpers
                 if(values == null) continue;
 
                 //process each column of each row
+                //to do: log something if  header and values length are not equal
                 for (int i = 0; i < header.Length && i < values.Length; i++)
                 {
                     //remove the space in between words from the header to match property names
@@ -65,6 +66,7 @@ namespace ir_coding_task_csv_validator.Helpers
                     string trimmedHeader = RemoveSpace(header[i]);
                     var prop = props.FirstOrDefault(p => p.Name.Equals(trimmedHeader, StringComparison.OrdinalIgnoreCase));
 
+                    //to do: log something if prop is null, why do we have an extra header that is not matched with the prop
                     try
                     {
                         prop?.SetValue(obj, ConvertValue(values[i], prop.PropertyType, prop.Name));
